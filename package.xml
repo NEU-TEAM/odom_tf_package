@@ -1,0 +1,34 @@
+<package>
+  <name>odom_tf_package</name>
+  <version>0.0.0</version>
+  <description>
+
+   odom_tf_node
+
+  </description>
+  
+  
+  <maintainer email="983260686@qq.com">exbot</maintainer>
+  <license>BSD</license>
+
+
+
+
+
+
+  <!--review status="unreviewed" notes=""/-->
+  <!--url>http://ros.org/wiki/neu_arduino</url-->
+  <!--depend package="hector_exploration_planner"/-->
+  <!--depend package="neu_msgs"/-->
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>std_msgs</run_depend>
+</package>
+
+
