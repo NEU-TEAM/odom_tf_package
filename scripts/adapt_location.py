@@ -1,22 +1,11 @@
 #!/usr/bin/env python
 # license removed for brevity
+
 import rospy
-from std_msgs.msg import String
-from geometry_msgs.msg import PoseStamped, Point, Quaternion, Twist
-import time
-import rospy
-import actionlib
-from actionlib_msgs.msg import *
-from geometry_msgs.msg import Pose, Point, Quaternion, Twist
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from tf.transformations import quaternion_from_euler
-from visualization_msgs.msg import Marker
-from math import radians, pi
+from geometry_msgs.msg import PoseStamped, Twist
 
 pub_task = rospy.Publisher('cmd_vel', Twist, queue_size=1)
-pub = rospy.Publisher('task_status', String, queue_size=1)
 
-# rospy.Rate(10)
 twist = Twist()
 twist1 = Twist()
 
@@ -47,8 +36,7 @@ def callback(data):
 
 def listener():
     rospy.init_node('offset_listener', anonymous=True)
-    rospy.Subscriber("/vision/grasp/location", PoseStamped, callback, queue_size=1)
-    # spin() simply keeps python from exiting until this node is stopped
+    rospy.Subscriber("/ctrl/vision/grasp/location", PoseStamped, callback, queue_size=1)
     rospy.spin()
 
 

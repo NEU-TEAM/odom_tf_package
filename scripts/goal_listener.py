@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # license removed for brevity
 import rospy
-from std_msgs.msg import String, Int8
-from geometry_msgs.msg import Pose, PoseStamped, PoseWithCovarianceStamped, Point, Quaternion, Twist
+from std_msgs.msg import Int8
+from geometry_msgs.msg import Pose, PoseStamped, Quaternion
 import actionlib
 from actionlib_msgs.msg import *
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from tf.transformations import quaternion_from_euler
-from visualization_msgs.msg import Marker
-from math import radians, pi
-import time
 
-pubtask = rospy.Publisher('task_status', String, queue_size=10)
+pub_status = rospy.Publisher('/feed/base/task_status', Int8, queue_size=1)
 
 
 def callback(data):
@@ -36,24 +33,25 @@ def callback(data):
     move_base.send_goal(goal)
     finished_within_time = move_base.wait_for_result(rospy.Duration(1200))
     # move(goal)
+    status = Int8()  # For feedback
+    status.data = 0  # Initialize with 0
     if not finished_within_time:
         move_base.cancel_goal()
-        rospy.loginfo("Timed out achieving goal")
+        status.data = -1
+        rospy.loginfo("Base: Time out for achieving goal")
     else:
         state = move_base.get_state()
         if state == GoalStatus.SUCCEEDED:
-            for a in range(1, 3):
-                time.sleep(2)
-                # TODO discuss the msg content
-                pubtask.publish(String("Goal_succeeded"))
-            rospy.loginfo("Goal succeeded!")
+            status.data = 1
+            rospy.loginfo("Base: Goal succeeded!")
         elif state == GoalStatus.ABORTED:
-            pubtask.publish("Goal aborted")
+            status.data = -1
+    pub_status.publish(status)
 
 
 def listener():
     rospy.init_node('listener', anonymous=True)
-    rospy.Subscriber("nav_location_goal", PoseStamped, callback)
+    rospy.Subscriber("/ctrl/voice/nav_location_goal", PoseStamped, callback)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
