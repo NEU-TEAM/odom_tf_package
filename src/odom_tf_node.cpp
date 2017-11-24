@@ -32,7 +32,8 @@ int main(int argc, char** argv)
   ros::NodeHandle n;
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
   tf::TransformBroadcaster odom_broadcaster;
-  
+  ros::Rate loop_rate(20);
+
   ros::Subscriber sub_base = n.subscribe("stm_publish", 1, speedCallback);
   ros::Subscriber sub_imu = n.subscribe("arduino_jiaodu/Yaw", 1, rotationCallback);
   
@@ -59,7 +60,7 @@ int main(int argc, char** argv)
     double dt = (current_time - last_time).toSec();
     double curr_yaw = yaw_imu_;
     double average_speedx = (front_left - front_right) / 2;
-    double average_speedy = (front_right - back_left) / 2;
+    double average_speedy = (back_right - front_right) / 2;
 
     double average_distancex = average_speedx * dt;
     double average_distancey = average_speedy * dt;
@@ -111,6 +112,7 @@ int main(int argc, char** argv)
     odom_pub.publish(odom);
     last_time = current_time;
     last_yaw = curr_yaw;
+    loop_rate.sleep();
   }
   return 0;
 }
