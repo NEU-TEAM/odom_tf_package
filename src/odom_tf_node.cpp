@@ -33,7 +33,7 @@ int main(int argc, char** argv)
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
   tf::TransformBroadcaster odom_broadcaster;
   
-  ros::Subscriber sub_base = n.subscribe("arduino_sudu/stm_publish", 1, speedCallback);
+  ros::Subscriber sub_base = n.subscribe("stm_publish", 1, speedCallback);
   ros::Subscriber sub_imu = n.subscribe("arduino_jiaodu/Yaw", 1, rotationCallback);
   
   double last_yaw = 0.0;
