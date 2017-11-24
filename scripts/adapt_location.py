@@ -6,32 +6,29 @@ from geometry_msgs.msg import PoseStamped, Twist
 
 pub_task = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 
-twist = Twist()
-twist1 = Twist()
+base_vel = Twist()
 
 
 def callback(data):
-    twist.linear.x = data.pose.position.x
-    twist.linear.y = data.pose.position.y
-    if twist.linear.x > 0.02:
-        twist1.linear.x = 0.08
-        twist1.linear.y = 0.00
-    elif twist.linear.x < -0.02:
-        twist1.linear.x = -0.08
-        twist1.linear.y = 0.00
+    x = data.pose.position.x
+    y = data.pose.position.y
+    if x > 0.02:
+        base_vel.linear.x = 0.08
+        base_vel.linear.y = 0.00
+    elif x < -0.02:
+        base_vel.linear.x = -0.08
+        base_vel.linear.y = 0.00
     else:
-        twist1.linear.x = 0.0
-        if twist.linear.y > 0.01:
-            twist1.linear.y = 0.08
-
-        elif twist.linear.y < 0.01:
-            twist1.linear.y = -0.08
-
+        base_vel.linear.x = 0.0
+        if y > 0.01:
+            base_vel.linear.y = 0.08
+        elif y < 0.01:
+            base_vel.linear.y = -0.08
         else:
-            twist1.linear.y = 0.0
-            twist1.linear.x = 0.0
+            base_vel.linear.y = 0.0
+            base_vel.linear.x = 0.0
 
-    pub_task.publish(twist1)
+    pub_task.publish(base_vel)
 
 
 def listener():

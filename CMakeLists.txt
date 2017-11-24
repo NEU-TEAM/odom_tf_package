@@ -16,6 +16,6 @@ include_directories(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(odom_tf_package src/odom_tf_node.cpp)
-target_link_libraries(odom_tf_package ${catkin_LIBRARIES})
+add_executable(odom_tf src/odom_tf_node.cpp)
+target_link_libraries(odom_tf ${catkin_LIBRARIES})
 
