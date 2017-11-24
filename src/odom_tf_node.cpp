@@ -5,20 +5,20 @@
 #include <geometry_msgs/Twist.h>
 
 // Wheel speed
-double left1_speed = 0.0;
-double right1_speed = 0.0;
-double track_speedL2 = 0.0;
-double track_speedR2 = 0.0;
+double front_left = 0.0;
+double front_right = 0.0;
+double back_left = 0.0;
+double back_right = 0.0;
 
 // Yaw value of base from IMU
 double yaw_imu_ = 0.0;
 
 void speedCallback(const geometry_msgs::Twist& msg)
 {
-  left1_speed = msg.linear.x;
-  right1_speed = msg.linear.y;
-  track_speedL2 = msg.linear.z;
-  track_speedR2 = msg.angular.x;
+  front_left = msg.linear.x;
+  front_right = msg.linear.y;
+  back_left = msg.linear.z;
+  back_right = msg.angular.x;
 }
 
 void rotationCallback(const std_msgs::Float32& msg)
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
   tf::TransformBroadcaster odom_broadcaster;
   
-  ros::Subscriber sub_base = n.subscribe("stm_publish", 1, speedCallback);
+  ros::Subscriber sub_base = n.subscribe("arduino_sudu/stm_publish", 1, speedCallback);
   ros::Subscriber sub_imu = n.subscribe("arduino_jiaodu/Yaw", 1, rotationCallback);
   
   double last_yaw = 0.0;
@@ -58,16 +58,21 @@ int main(int argc, char** argv)
     // Compute odometry in a typical way given the velocities of the robot
     double dt = (current_time - last_time).toSec();
     double curr_yaw = yaw_imu_;
-    double average_speed = (left1_speed - right1_speed) / 2;
-    double average_distance = average_speed * dt;
-    
-    double delta_x = average_distance * cos(curr_yaw);
-    double delta_y = average_distance * sin(curr_yaw);
+    double average_speedx = (front_left - front_right) / 2;
+    double average_speedy = (front_right - back_left) / 2;
+
+    double average_distancex = average_speedx * dt;
+    double average_distancey = average_speedy * dt;
+
+    double delta_x = average_distancex * cos(curr_yaw) - average_distancey * sin(curr_yaw);
+    double delta_y = average_distancex * sin(curr_yaw) + average_distancey * cos(curr_yaw);
+
     x += delta_x;
     y += delta_y;
     theta = curr_yaw;
     
-    v_x = average_speed;
+    v_x = average_speedx;
+    v_y = average_speedy;
     v_theta = (curr_yaw - last_yaw) / dt;
     
     // Since all odometry is 6DOF we'll need a quaternion created from yaw
@@ -76,7 +81,7 @@ int main(int argc, char** argv)
     geometry_msgs::TransformStamped odom_trans;
     odom_trans.header.stamp = current_time;
     odom_trans.header.frame_id = "odom";
-    odom_trans.child_frame_id = "base_footprint";
+    odom_trans.child_frame_id = "base_link";
     odom_trans.transform.translation.x = x;
     odom_trans.transform.translation.y = y;
     odom_trans.transform.translation.z = 0.0;
@@ -97,7 +102,7 @@ int main(int argc, char** argv)
     odom.pose.pose.orientation = odom_quat;
     
     // Set the velocity
-    odom.child_frame_id = "base_footprint";
+    odom.child_frame_id = "base_link";
     odom.twist.twist.linear.x = v_x;
     odom.twist.twist.linear.y = v_y;
     odom.twist.twist.angular.z = v_theta;
