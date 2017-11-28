@@ -34,8 +34,8 @@ int main(int argc, char** argv)
   tf::TransformBroadcaster odom_broadcaster;
   ros::Rate loop_rate(20);
 
-  ros::Subscriber sub_base = n.subscribe("stm_publish", 1, speedCallback);
-  ros::Subscriber sub_imu = n.subscribe("arduino_jiaodu/Yaw", 1, rotationCallback);
+  ros::Subscriber sub_base = n.subscribe("/base_speed/stm_publish", 1, speedCallback);
+  ros::Subscriber sub_imu = n.subscribe("/base_yaw/Yaw", 1, rotationCallback);
   
   double last_yaw = 0.0;
   
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
     geometry_msgs::TransformStamped odom_trans;
     odom_trans.header.stamp = current_time;
     odom_trans.header.frame_id = "odom";
-    odom_trans.child_frame_id = "base_link";
+    odom_trans.child_frame_id = "base_footprint";
     odom_trans.transform.translation.x = x;
     odom_trans.transform.translation.y = y;
     odom_trans.transform.translation.z = 0.0;
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
     odom.pose.pose.orientation = odom_quat;
     
     // Set the velocity
-    odom.child_frame_id = "base_link";
+    odom.child_frame_id = "base_footprint";
     odom.twist.twist.linear.x = v_x;
     odom.twist.twist.linear.y = v_y;
     odom.twist.twist.angular.z = v_theta;
